@@ -12,7 +12,7 @@ public class AccountabilityTask implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-
+        api.getTextChannelById(channel).sendMessage("Testing").queue();
     }
 
     public void setApi(JDA api) {
