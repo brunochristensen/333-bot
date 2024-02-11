@@ -6,14 +6,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class PingListener extends ListenerAdapter {
+
     @Override
-    public void onMessageReceived(MessageReceivedEvent event)
-    {
+    public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
         Message message = event.getMessage();
         String content = message.getContentRaw();
-        if (content.equals("/ping"))
-        {
+        if (content.equals("/ping")) {
             MessageChannel channel = event.getChannel();
             channel.sendMessage("Pong!").queue();
         }
