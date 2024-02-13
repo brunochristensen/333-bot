@@ -1,8 +1,11 @@
 package net.brunochristensen._333bot.commands;
 
+import net.brunochristensen._333bot.tasks.accountability.AccountabilityHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
@@ -12,8 +15,11 @@ import java.util.List;
 
 public class AccountabilityCommand extends ListenerAdapter {
 
-    public AccountabilityCommand() {
+    private AccountabilityHandler handler;
 
+    @Override
+    public void onReady(ReadyEvent event){
+        this.handler = new AccountabilityHandler(event.getJDA());
     }
 
     @Override

@@ -1,51 +1,81 @@
 package net.brunochristensen._333bot.tasks.accountability;
 
-import org.quartz.JobDetail;
-import org.quartz.SchedulerFactory;
-import org.quartz.Trigger;
+import net.dv8tion.jda.api.JDA;
+import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.impl.matchers.GroupMatcher;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 
 public class AccountabilityHandler {
 
-    private final SchedulerFactory schedulerFactory = new StdSchedulerFactory();
+    private final Scheduler scheduler;
     JobDetail accountabilityJob;
-    private final List<Trigger> triggers = new ArrayList<>();
 
-    public AccountabilityHandler() {
-        accountabilityJob = newJob(AccountabilityTask.class)
-                .withIdentity("accountabilityJob", "accountabilityGroup")
+    public AccountabilityHandler(JDA api) {
+        try {
+            scheduler = new StdSchedulerFactory().getScheduler();
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+        accountabilityJob = newJob(AccountabilityJob.class)
+                .withIdentity("accountabilityJob")
                 .build();
         accountabilityJob.getJobDataMap().put("api", api);
     }
 
-    public void newTrigger(){
-
+    public String viewTriggers() {
+        StringBuilder sb = new StringBuilder();
+        try {
+            Set<TriggerKey> keys = scheduler.getTriggerKeys(GroupMatcher.anyGroup());
+            for (TriggerKey tk : keys) {
+                CronTrigger t = (CronTrigger) scheduler.getTrigger(tk);
+                sb.append(String.format("%s, %s\n%s\n",
+                        t.getDescription(),
+                        t.getCronExpression(),
+                        t.getExpressionSummary()));
+            }
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+        return sb.toString();
     }
 
-//    try {
-//        Scheduler scheduler = schedulerFactory.getScheduler();
-//        JobDetail accountabilityJob = newJob(AccountabilityTask.class)
-//                .withIdentity("accountabilityJob", "group1")
-//                .build();
-//        Trigger accountabilityTrigger = TriggerBuilder.newTrigger()
-//                .withIdentity("accountabilityTrigger", "group1")
-//                .startNow()
-//                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-//                        .withIntervalInSeconds(5)
-//                        .repeatForever())
-//                .build();
-//        accountabilityJob.getJobDataMap().put("api", api);
-//        accountabilityJob.getJobDataMap().put("channel", envGetter.get("ACCOUNTABILITY_CHANNEL_ID"));
-//        scheduler.scheduleJob(accountabilityJob, accountabilityTrigger);
-//        scheduler.start();
-//    } catch (SchedulerException e) {
-//        throw new RuntimeException(e);
-//    }
+    public void newTrigger(String triggerName, String cronSch, String uniform, String time, String location) {
+        CronTrigger accountabilityTrigger = TriggerBuilder.newTrigger()
+                .withIdentity(triggerName)
+                .startNow()
+                .withSchedule(cronSchedule(cronSch))
+                .withDescription(triggerName)
+                .forJob(accountabilityJob)
+                .build();
+        accountabilityTrigger.getJobDataMap()
+                .putAll(Map.of("uniform", uniform, "time", time, "location", location));
+        try {
+            scheduler.scheduleJob(accountabilityTrigger);
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public void delTrigger(String triggerName) {
+        try {
+            scheduler.unscheduleJob(new TriggerKey(triggerName));
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void modTrigger() {
+        //TODO
+    }
+
+    public void skipTrigger() {
+
+    }
 
 }

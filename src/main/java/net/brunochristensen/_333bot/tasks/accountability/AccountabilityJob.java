@@ -8,17 +8,15 @@ import org.quartz.JobExecutionException;
 
 import java.util.Objects;
 
-public class AccountabilityTask implements Job {
+public class AccountabilityJob implements Job {
 
     private JDA api;
     private String UoD;
     private String time;
 
-
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        Objects.requireNonNull(api.getTextChannelById(envGetter.get("ACCOUNTABILITY_CHANNEL_ID")))
-                .sendMessage("Testing").queue();
+        Objects.requireNonNull(api.getTextChannelById(envGetter.get("ACCOUNTABILITY_CHANNEL_ID"))).sendMessage("Testing").queue();
     }
 
     public void setApi(JDA api) {
