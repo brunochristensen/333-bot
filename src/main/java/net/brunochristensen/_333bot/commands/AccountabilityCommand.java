@@ -2,12 +2,12 @@ package net.brunochristensen._333bot.commands;
 
 import net.brunochristensen._333bot.tasks.accountability.AccountabilityHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,12 +18,12 @@ public class AccountabilityCommand extends ListenerAdapter {
     private AccountabilityHandler handler;
 
     @Override
-    public void onReady(ReadyEvent event){
+    public void onReady(@NotNull ReadyEvent event){
         this.handler = new AccountabilityHandler(event.getJDA());
     }
 
     @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getName().equals("account")) {
             EmbedBuilder eb = new EmbedBuilder();
             eb.setTitle("Accountability Job Master Menu");
@@ -47,7 +47,7 @@ public class AccountabilityCommand extends ListenerAdapter {
     }
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (event.getComponentId().equals("accView")) {
 
         } else if (event.getComponentId().equals("accSkip")) {
