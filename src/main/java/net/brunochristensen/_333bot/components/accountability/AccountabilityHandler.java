@@ -1,4 +1,4 @@
-package net.brunochristensen._333bot.tasks.accountability;
+package net.brunochristensen._333bot.components.accountability;
 
 import net.dv8tion.jda.api.JDA;
 import org.quartz.*;

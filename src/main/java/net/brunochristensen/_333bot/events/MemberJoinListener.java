@@ -1,4 +1,4 @@
-package net.brunochristensen._333bot.listeners;
+package net.brunochristensen._333bot.events;
 
 import net.brunochristensen._333bot.utils.envGetter;
 import net.dv8tion.jda.api.EmbedBuilder;

@@ -1,4 +1,4 @@
-package net.brunochristensen._333bot.listeners;
+package net.brunochristensen._333bot.events;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;

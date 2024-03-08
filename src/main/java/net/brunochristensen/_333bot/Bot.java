@@ -1,8 +1,8 @@
 package net.brunochristensen._333bot;
 
 import net.brunochristensen._333bot.commands.AccountabilityCommand;
-import net.brunochristensen._333bot.listeners.MemberJoinListener;
-import net.brunochristensen._333bot.listeners.PingListener;
+import net.brunochristensen._333bot.events.MemberJoinListener;
+import net.brunochristensen._333bot.events.PingListener;
 import net.brunochristensen._333bot.utils.envGetter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
