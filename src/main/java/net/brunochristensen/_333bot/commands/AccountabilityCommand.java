@@ -13,6 +13,8 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
+import org.quartz.CronExpression;
+import org.quartz.SchedulerException;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -25,7 +27,11 @@ public class AccountabilityCommand extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        this.handler = new AccountabilityHandler(event.getJDA());
+        try {
+            this.handler = new AccountabilityHandler(event.getJDA());
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -35,18 +41,15 @@ public class AccountabilityCommand extends ListenerAdapter {
             eb.setTitle("Accountability Job Master Menu");
             eb.setColor(Color.yellow);
             eb.setDescription("Here you can view and configure when the bot will send out " +
-                    "requests for accountability, Jobs can be created, deleted, modified, " +
+                    "requests for accountability, Triggers can be created, deleted, modified, " +
                     "or paused here.");
-
             List<Button> miscButtons = new ArrayList<>();
             miscButtons.add(Button.primary("accView", "View Accountability Times"));
             miscButtons.add(Button.primary("accSkip", "Skip Next Accountability Time"));
-
             List<Button> crudButtons = new ArrayList<>();
             crudButtons.add(Button.primary("accAdd", "Add New Accountability Times"));
             crudButtons.add(Button.primary("accDel", "Delete Accountability Times"));
             crudButtons.add(Button.primary("accMod", "Modify Accountability Times"));
-
             event.replyEmbeds(eb.build()).addActionRow(miscButtons)
                     .addActionRow(crudButtons).setEphemeral(true).queue();
         }
@@ -55,12 +58,18 @@ public class AccountabilityCommand extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (event.getComponentId().equals("accView")) {
-            event.reply(handler.viewTriggers()).setEphemeral(true).queue();
+            try {
+                event.reply(handler.viewTriggers()).setEphemeral(true).queue();
+            } catch (SchedulerException e) {
+                event.reply("Failed to fetch Keys from scheduler. Contact a dev for assistance.")
+                        .setEphemeral(true).queue();
+                throw new RuntimeException(e);
+            }
         } else if (event.getComponentId().equals("accSkip")) {
             event.reply("Not Implemented").setEphemeral(true).queue();
         } else if (event.getComponentId().equals("accAdd")) {
             TextInput triggerName = TextInput.create("triggerName", "TriggerName", TextInputStyle.SHORT)
-                    .setPlaceholder("Unique name for schedule")
+                    .setPlaceholder("Unique name for Trigger")
                     .setMinLength(1)
                     .setMaxLength(100)
                     .build();
@@ -91,7 +100,7 @@ public class AccountabilityCommand extends ListenerAdapter {
             event.replyModal(modal).queue();
         } else if (event.getComponentId().equals("accDel")) {
             TextInput triggerName = TextInput.create("triggerName", "TriggerName", TextInputStyle.SHORT)
-                    .setPlaceholder("Unique name of schedule")
+                    .setPlaceholder("Unique name of Trigger")
                     .setMinLength(1)
                     .setMaxLength(100)
                     .build();
@@ -113,18 +122,36 @@ public class AccountabilityCommand extends ListenerAdapter {
                 String uniform = Objects.requireNonNull(event.getValue("uniform")).getAsString();
                 String time = Objects.requireNonNull(event.getValue("time")).getAsString();
                 String location = Objects.requireNonNull(event.getValue("location")).getAsString();
-                handler.newTrigger(triggerName, cronSch, uniform, time, location);
-                event.reply("New accountability job scheduled.").setEphemeral(true).queue();
+                if (CronExpression.isValidExpression(cronSch)) {
+                    handler.newTrigger(triggerName, cronSch, uniform, time, location);
+                    event.reply("New accountability Trigger scheduled.").setEphemeral(true).queue();
+                } else {
+                    event.reply("Invalid Cron expression.").setEphemeral(true).queue();
+                }
             } catch (NullPointerException e) {
-                event.reply("Check for empty or invalid fields.").setEphemeral(true).queue();
+                event.reply("Invalid field entry of scheduled Trigger").setEphemeral(true).queue();
+                throw new RuntimeException(e);
+            } catch (SchedulerException e) {
+                event.reply("Scheduler failed to add Trigger. Contact a dev for assistance.").setEphemeral(true)
+                        .queue();
+                throw new RuntimeException(e);
             }
         } else if (event.getModalId().equals("delAccModal")) {
             try {
                 String triggerName = Objects.requireNonNull(event.getValue("triggerName")).getAsString();
-                handler.delTrigger(triggerName);
-                event.reply("Accountability job deleted.").setEphemeral(true).queue();
+                if(handler.getTiggerNames().contains(triggerName)){
+                    handler.delTrigger(triggerName);
+                    event.reply("Accountability Trigger deleted.").setEphemeral(true).queue();
+                } else {
+                    event.reply("Invalid Trigger name.").setEphemeral(true).queue();
+                }
             } catch (NullPointerException e) {
-                event.reply("Invalid name of scheduled job").setEphemeral(true).queue();
+                event.reply("Invalid field entry of scheduled Trigger").setEphemeral(true).queue();
+                throw new RuntimeException(e);
+            } catch (SchedulerException e) {
+                event.reply("Scheduler failed to remove Trigger. Contact a dev for assistance.").setEphemeral(true)
+                        .queue();
+                throw new RuntimeException(e);
             }
         }
     }
