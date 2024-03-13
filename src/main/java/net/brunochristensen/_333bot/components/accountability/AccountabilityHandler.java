@@ -21,8 +21,8 @@ public class AccountabilityHandler {
         SchedulerFactory schedulerFactory = new StdSchedulerFactory();
         scheduler = schedulerFactory.getScheduler();
         scheduler.start();
-        accountabilityJob =
-                newJob(AccountabilityJob.class).withIdentity("accountabilityJob", "accountabilityGroup").build();
+        accountabilityJob = newJob(AccountabilityJob.class).withIdentity("accountabilityJob", "accountabilityGroup")
+                .build();
         accountabilityJob.getJobDataMap().put("api", api);
     }
 
@@ -31,20 +31,23 @@ public class AccountabilityHandler {
         Set<TriggerKey> keys = scheduler.getTriggerKeys(GroupMatcher.groupEquals("accountabilityGroup"));
         for (TriggerKey tk : keys) {
             CronTrigger t = (CronTrigger) scheduler.getTrigger(tk);
-            sb.append(
-                    String.format("Name: %s\nCron Schedule: %s\nSummary:\n%s\n", t.getDescription(),
-                            t.getCronExpression(), t.getExpressionSummary()));
+            sb.append(String.format("Name: %s\nCron Schedule: %s\nSummary:\n%s\n", t.getDescription(),
+                    t.getCronExpression(), t.getExpressionSummary()));
         }
         return sb.isEmpty() ? "There are no currently scheduled Jobs" : sb.toString();
     }
 
     public void newTrigger(String triggerName, String cronSch, String uniform, String time, String location)
             throws SchedulerException {
-        CronTrigger accountabilityTrigger =
-                TriggerBuilder.newTrigger().withIdentity(triggerName, "accountabilityGroup").startNow()
-                        .withSchedule(cronSchedule(cronSch)).withDescription(triggerName)
-                        .forJob("accountabilityJob", "accountabilityGroup").build();
-        accountabilityTrigger.getJobDataMap().putAll(Map.of("uniform", uniform, "time", time, "location", location));
+        CronTrigger accountabilityTrigger = TriggerBuilder.newTrigger()
+                .withIdentity(triggerName, "accountabilityGroup")
+                .startNow()
+                .withSchedule(cronSchedule(cronSch))
+                .withDescription(triggerName)
+                .forJob("accountabilityJob", "accountabilityGroup")
+                .build();
+        accountabilityTrigger.getJobDataMap()
+                .putAll(Map.of("uniform", uniform, "time", time, "location", location));
         scheduler.scheduleJob(accountabilityJob, accountabilityTrigger);
     }
 
@@ -60,7 +63,7 @@ public class AccountabilityHandler {
         //TODO
     }
 
-    public HashSet<String> getTiggerNames() throws SchedulerException {
+    public HashSet<String> getTriggerNames() throws SchedulerException {
         HashSet<String> rt = new HashSet<>();
         Set<TriggerKey> keys = scheduler.getTriggerKeys(GroupMatcher.groupEquals("accountabilityGroup"));
         keys.forEach(key -> rt.add(key.getName()));
