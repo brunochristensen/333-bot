@@ -10,18 +10,18 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.JobBuilder.newJob;
 
 public class AccountabilityHandler {
 
     private final Scheduler scheduler;
-    JobDetail accountabilityJob;
+    private final JobDetail accountabilityJob;
 
     public AccountabilityHandler(JDA api) throws SchedulerException {
-        SchedulerFactory schedulerFactory = new StdSchedulerFactory();
-        scheduler = schedulerFactory.getScheduler();
+        scheduler = new StdSchedulerFactory().getScheduler();
+        scheduler.clear();
         scheduler.start();
-        accountabilityJob = newJob(AccountabilityJob.class).withIdentity("accountabilityJob", "accountabilityGroup")
+        accountabilityJob = JobBuilder.newJob(AccountabilityJob.class)
+                .withIdentity("accountabilityJob", "accountabilityGroup")
                 .build();
         accountabilityJob.getJobDataMap().put("api", api);
     }
@@ -31,23 +31,26 @@ public class AccountabilityHandler {
         Set<TriggerKey> keys = scheduler.getTriggerKeys(GroupMatcher.groupEquals("accountabilityGroup"));
         for (TriggerKey tk : keys) {
             CronTrigger t = (CronTrigger) scheduler.getTrigger(tk);
-            sb.append(String.format("Name: %s\nCron Schedule: %s\nSummary:\n%s\n", t.getDescription(),
-                    t.getCronExpression(), t.getExpressionSummary()));
+            sb.append(
+                    String.format("Name: %s\nCron Schedule: %s\nSummary:\n%s\n",
+                            t.getDescription(),
+                            t.getCronExpression(),
+                            t.getExpressionSummary()));
         }
         return sb.isEmpty() ? "There are no currently scheduled Jobs" : sb.toString();
     }
 
     public void newTrigger(String triggerName, String cronSch, String uniform, String time, String location)
             throws SchedulerException {
-        CronTrigger accountabilityTrigger = TriggerBuilder.newTrigger()
+        Trigger accountabilityTrigger = TriggerBuilder.newTrigger()
                 .withIdentity(triggerName, "accountabilityGroup")
                 .startNow()
                 .withSchedule(cronSchedule(cronSch))
                 .withDescription(triggerName)
-                .forJob("accountabilityJob", "accountabilityGroup")
+                .forJob(accountabilityJob)
                 .build();
-        accountabilityTrigger.getJobDataMap()
-                .putAll(Map.of("uniform", uniform, "time", time, "location", location));
+        accountabilityTrigger.getJobDataMap().putAll(
+                Map.of("uniform", uniform, "time", time, "location", location));
         scheduler.scheduleJob(accountabilityJob, accountabilityTrigger);
     }
 

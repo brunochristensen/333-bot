@@ -15,22 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class AccountabilityJob implements Job {
-    private final EmbedBuilder infoMenu = new EmbedBuilder().setTitle("Accountability")
-            .setColor(Color.yellow)
-            .setDescription("Report where you will be during accountability. THIS IS NOT AN OFFICIAL FORM OF " +
-                            "COMMUNICATION. You still need to ask for MTL permission. Not sure why this feature " +
-                            "is still here to be honest. If you are in processing this doesn't apply to you yet.");
-    private final StringSelectMenu selectMenu = StringSelectMenu.create("choose-acc")
-            .setRequiredRange(1, 1)
-            .addOption("Sick Call", "Sick Call", "See MTL at first accountability.")
-            .addOption("CQ", "CQ")
-            .addOption("ITF", "ITF")
-            .addOption("SIA", "SIA")
-            .addOption("Sec+", "Sec+")
-            .addOption("In-Processing", "In-Processing")
-            .addOption("Graduation", "Graduation")
-            .addOption("Out-processing", "Out-processing")
-            .build();
+
     private JDA api;
     private String uniform;
     private String time;
@@ -38,22 +23,35 @@ public class AccountabilityJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
-        AccountabilityRecord.getInstance().resetAccountabilityReport();
-        TextChannel channel =
-                Objects.requireNonNull(api.getTextChannelById(envGetter.get("ACCOUNTABILITY_CHANNEL_ID")));
-        List<Message> messages = channel.getHistory()
-                .retrievePast(10)
-                .complete();
-        channel.deleteMessages(messages)
-                .complete();
-        MessageEmbed infoMenuEmbed = infoMenu
+        MessageEmbed infoMenu = new EmbedBuilder()
+                .setTitle("Accountability")
+                .setColor(Color.yellow)
+                .setDescription("Report where you will be during accountability. THIS IS NOT AN OFFICIAL FORM OF "
+                        + "COMMUNICATION. You still need to ask for MTL permission. Not sure why this feature "
+                        + "is still here to be honest. If you are in processing this doesn't apply to you yet.")
+                .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot")
                 .addField("Uniform", uniform, false)
                 .addField("Time", time, false)
                 .addField("Location", location, false)
                 .build();
-        channel.sendMessageEmbeds(infoMenuEmbed)
-                .addActionRow(selectMenu)
-                .queue();
+        StringSelectMenu selectMenu = StringSelectMenu.create("choose-acc")
+                .setRequiredRange(1, 1)
+                .addOption("Sick Call", "Sick Call", "See MTL at first accountability.")
+                .addOption("CQ", "CQ")
+                .addOption("ITF", "ITF")
+                .addOption("SIA", "SIA")
+                .addOption("Sec+", "Sec+")
+                .addOption("In-Processing", "In-Processing")
+                .addOption("Graduation", "Graduation")
+                .addOption("Out-processing", "Out-processing")
+                .build();
+        AccountabilityRecord.getInstance().resetAccountabilityReport();
+        TextChannel channel = Objects.requireNonNull(
+                api.getTextChannelById(envGetter.get("ACCOUNTABILITY_CHANNEL_ID")));
+//        TODO The code below causes the Job to hang, need to diagnose the issue.
+//        List<Message> messages = channel.getHistory().retrievePast(10).complete();
+//        channel.deleteMessages(messages).complete();
+        channel.sendMessageEmbeds(infoMenu).addActionRow(selectMenu).queue();
     }
 
     @SuppressWarnings("unused")
@@ -67,7 +65,9 @@ public class AccountabilityJob implements Job {
     }
 
     @SuppressWarnings("unused")
-    public void setTime(String time) { this.time = time; }
+    public void setTime(String time) {
+        this.time = time;
+    }
 
     @SuppressWarnings("unused")
     public void setLocation(String location) {

@@ -25,11 +25,10 @@ public class Bot {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        api.addEventListener(new MemberJoinListener(), new PingListener(), new AccountabilityRecord());
+        api.addEventListener(new MemberJoinListener(), new PingListener(), AccountabilityRecord.getInstance());
         Objects.requireNonNull(api.getGuildById(envGetter.get("GUILD_ID")))
                 .updateCommands()
                 .addCommands(Commands.slash("account", "Brings up the Accountability menu. ADMIN/MOD ONLY."))
-                .addCommands(Commands.slash("getaccount", "Fetch the results of the current accountability window."))
                 .queue();
     }
 }
