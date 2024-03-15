@@ -29,6 +29,7 @@ public class AccountabilityRecord extends ListenerAdapter {
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         if (event.getComponentId().equals("choose-acc")) {
             accountabilityReport.put(event.getUser().getName(), event.getValues().get(0));
+            event.reply("Submission has been processed.").setEphemeral(true).queue();
         }
     }
 }

@@ -1,6 +1,6 @@
 package net.brunochristensen._333bot.components.accountability;
 
-import net.brunochristensen._333bot.utils.envGetter;
+import net.brunochristensen._333bot.utils.Env;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
@@ -33,6 +33,7 @@ public class AccountabilityJob implements Job {
                 .addField("Uniform", uniform, false)
                 .addField("Time", time, false)
                 .addField("Location", location, false)
+                .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot")
                 .build();
         StringSelectMenu selectMenu = StringSelectMenu.create("choose-acc")
                 .setRequiredRange(1, 1)
@@ -47,10 +48,9 @@ public class AccountabilityJob implements Job {
                 .build();
         AccountabilityRecord.getInstance().resetAccountabilityReport();
         TextChannel channel = Objects.requireNonNull(
-                api.getTextChannelById(envGetter.get("ACCOUNTABILITY_CHANNEL_ID")));
-//        TODO The code below causes the Job to hang, need to diagnose the issue.
-//        List<Message> messages = channel.getHistory().retrievePast(10).complete();
-//        channel.deleteMessages(messages).complete();
+                api.getTextChannelById(Env.get("ACCOUNTABILITY_CHANNEL_ID")));
+        List<Message> messages = channel.getHistory().retrievePast(10).complete();
+        messages.forEach((message -> message.delete().complete()));
         channel.sendMessageEmbeds(infoMenu).addActionRow(selectMenu).queue();
     }
 
