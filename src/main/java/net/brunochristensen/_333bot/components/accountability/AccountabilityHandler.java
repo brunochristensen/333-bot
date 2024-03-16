@@ -71,11 +71,6 @@ public class AccountabilityHandler {
         return true;
     }
 
-    public boolean modTrigger() {
-        //TODO
-        return false;
-    }
-
     public boolean skipTrigger() {
         //TODO
         return false;
