@@ -1,7 +1,5 @@
-package net.brunochristensen._333bot.commands;
+package net.brunochristensen._333bot.components.accountability;
 
-import net.brunochristensen._333bot.components.accountability.AccountabilityHandler;
-import net.brunochristensen._333bot.components.accountability.AccountabilityRecord;
 import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.brunochristensen._333bot.utils.Env;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,11 +15,10 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
-import org.quartz.CronExpression;
 import org.quartz.SchedulerException;
 
 import java.awt.*;
-import java.util.Hashtable;
+import java.util.Map;
 import java.util.Objects;
 
 public class AccountabilityCommand extends ListenerAdapter {
@@ -69,7 +66,7 @@ public class AccountabilityCommand extends ListenerAdapter {
             this.handler = new AccountabilityHandler(event.getJDA());
         } catch (SchedulerException e) {
             Objects.requireNonNull(event.getJDA().getTextChannelById(Env.get("DEBUG_CHANNEL_ID")))
-                    .sendMessageEmbeds(EmbedResponse.create(Color.RED, "AccountabilityHandler failed to fetch scheduler."))
+                    .sendMessageEmbeds(EmbedResponse.error("AccountabilityHandler failed to fetch scheduler."))
                     .queue();
             throw new RuntimeException(e);
         }
@@ -99,24 +96,39 @@ public class AccountabilityCommand extends ListenerAdapter {
                     .queue();
         } else if (event.getComponentId().equals("accView")) {
             try {
-                event.replyEmbeds(EmbedResponse.create(Color.GREEN, handler.viewTriggers()))
-                        .setEphemeral(true)
-                        .queue();
+                Map<String, Map<String, String>> data = handler.getTriggerData();
+                if (data.isEmpty()) {
+                    event.replyEmbeds(EmbedResponse.success("There are no Jobs currently scheduled."))
+                            .setEphemeral(true)
+                            .queue();
+                } else {
+                    EmbedBuilder tmp = new EmbedBuilder().setColor(Color.GREEN)
+                            .setTitle("The currently scheduled Jobs are as follows:")
+                            .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot");
+                    for (Map.Entry<String,Map<String, String>> trigger : data.entrySet()) {
+                        for (Map.Entry<String, String> detail : trigger.getValue().entrySet()) {
+                            tmp.addField(detail.getKey(), detail.getValue(), true);
+                        }
+                    }
+                    event.replyEmbeds(tmp.build())
+                            .setEphemeral(true)
+                            .queue();
+                }
             } catch (SchedulerException e) {
-                event.replyEmbeds(EmbedResponse.create(Color.RED, "Failed to fetch Keys from scheduler. Contact a dev for assistance."))
+                event.replyEmbeds(EmbedResponse.error("Failed to fetch Keys from scheduler. Contact a dev for assistance."))
                         .setEphemeral(true)
                         .queue();
                 throw new RuntimeException(e);
             }
         } else if (event.getComponentId().equals("accSkip")) {
-            event.reply("Not Implemented")
+            event.replyEmbeds(EmbedResponse.error("Not Implemented"))
                     .setEphemeral(true)
                     .queue();
         } else if (event.getComponentId().equals("accGet")) {
             StringBuilder sb = new StringBuilder();
             AccountabilityRecord.getInstance().getAccountabilityReport()
                     .forEach((k, v) -> sb.append(String.format("%s, %s\n", k, v)));
-            event.replyEmbeds(EmbedResponse.create(Color.GREEN, sb.toString()))
+            event.replyEmbeds(EmbedResponse.success(sb.toString()))
                     .setEphemeral(true)
                     .queue();
         }
@@ -125,43 +137,41 @@ public class AccountabilityCommand extends ListenerAdapter {
     @Override
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
         if (event.getModalId().equals("newAccModal")) {
-            try {
                 String triggerName = Objects.requireNonNull(event.getValue("triggerName")).getAsString();
                 String cronSch = Objects.requireNonNull(event.getValue("cronSch")).getAsString();
                 String uniform = Objects.requireNonNull(event.getValue("uniform")).getAsString();
                 String time = Objects.requireNonNull(event.getValue("time")).getAsString();
                 String location = Objects.requireNonNull(event.getValue("location")).getAsString();
-                if (CronExpression.isValidExpression(cronSch)) {
-                    handler.newTrigger(triggerName, cronSch, uniform, time, location);
-                    event.replyEmbeds(EmbedResponse.create(Color.GREEN,"New accountability Trigger scheduled."))
+            try {
+                if (handler.newTrigger(triggerName, cronSch, uniform, time, location)) {
+                    event.replyEmbeds(EmbedResponse.success("New accountability Trigger scheduled."))
                             .setEphemeral(true)
                             .queue();
                 } else {
-                    event.replyEmbeds(EmbedResponse.create(Color.YELLOW,"Invalid Cron expression."))
+                    event.replyEmbeds(EmbedResponse.failure("Invalid Cron expression."))
                             .setEphemeral(true)
                             .queue();
                 }
             } catch (SchedulerException e) {
-                event.replyEmbeds(EmbedResponse.create(Color.RED,"Scheduler failed to add Trigger. Contact a dev for assistance."))
+                event.replyEmbeds(EmbedResponse.error("Scheduler failed to add Trigger. Contact a dev for assistance."))
                         .setEphemeral(true)
                         .queue();
                 throw new RuntimeException(e);
             }
         } else if (event.getModalId().equals("delAccModal")) {
+            String triggerName = Objects.requireNonNull(event.getValue("triggerName")).getAsString();
             try {
-                String triggerName = Objects.requireNonNull(event.getValue("triggerName")).getAsString();
-                if (handler.getTriggerNames().contains(triggerName)) {
-                    handler.delTrigger(triggerName);
-                    event.reply("Accountability Trigger deleted.")
+                if (handler.delTrigger(triggerName)) {
+                    event.replyEmbeds(EmbedResponse.success("Accountability Trigger deleted."))
                             .setEphemeral(true)
                             .queue();
                 } else {
-                    event.reply("Invalid Trigger name.")
+                    event.replyEmbeds(EmbedResponse.failure("Invalid Trigger name."))
                             .setEphemeral(true)
                             .queue();
                 }
             } catch (SchedulerException e) {
-                event.reply("Scheduler failed to remove Trigger. Contact a dev for assistance.")
+                event.replyEmbeds(EmbedResponse.error("Scheduler failed to remove Trigger."))
                         .setEphemeral(true)
                         .queue();
                 throw new RuntimeException(e);

@@ -29,7 +29,6 @@ public class AccountabilityJob implements Job {
                 .setDescription("Report where you will be during accountability. THIS IS NOT AN OFFICIAL FORM OF "
                         + "COMMUNICATION. You still need to ask for MTL permission. Not sure why this feature "
                         + "is still here to be honest. If you are in processing this doesn't apply to you yet.")
-                .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot")
                 .addField("Uniform", uniform, false)
                 .addField("Time", time, false)
                 .addField("Location", location, false)

@@ -1,6 +1,6 @@
 package net.brunochristensen._333bot;
 
-import net.brunochristensen._333bot.commands.AccountabilityCommand;
+import net.brunochristensen._333bot.components.accountability.AccountabilityCommand;
 import net.brunochristensen._333bot.components.accountability.AccountabilityRecord;
 import net.brunochristensen._333bot.events.MemberJoinListener;
 import net.brunochristensen._333bot.events.PingListener;
