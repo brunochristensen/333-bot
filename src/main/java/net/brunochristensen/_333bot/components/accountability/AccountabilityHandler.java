@@ -16,7 +16,6 @@ public class AccountabilityHandler {
 
     public AccountabilityHandler(JDA api) throws SchedulerException {
         scheduler = new StdSchedulerFactory().getScheduler();
-        scheduler.clear();
         scheduler.start();
         accountabilityJob = JobBuilder.newJob(AccountabilityJob.class)
                 .withIdentity("accountabilityJob", "accountabilityGroup")
@@ -33,7 +32,7 @@ public class AccountabilityHandler {
             m.put("Cron Expression", t.getCronExpression());
             m.put("Expression Summary", t.getExpressionSummary());
             m.put("Next Fire Time", t.getNextFireTime().toString());
-            m.put("Previous Fire Time", t.getPreviousFireTime().toString());
+            m.put("Previous Fire Time", (t.getPreviousFireTime() == null) ? "N/A" : t.getPreviousFireTime().toString());
             triggerData.put(t.getKey().getName(), m);
         }
         return triggerData;
@@ -53,7 +52,11 @@ public class AccountabilityHandler {
                 .build();
         accountabilityTrigger.getJobDataMap().putAll(
                 Map.of("uniform", uniform, "time", time, "location", location));
-        scheduler.scheduleJob(accountabilityJob, accountabilityTrigger);
+        if (scheduler.getTriggerKeys(GroupMatcher.groupEquals("accountabilityGroup")).isEmpty()) {
+            scheduler.scheduleJob(accountabilityJob, accountabilityTrigger);
+        } else {
+            scheduler.scheduleJob(accountabilityTrigger);
+        }
         return true;
     }
 
