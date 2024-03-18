@@ -6,14 +6,14 @@ import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class AccountabilityRecord extends ListenerAdapter {
+public class AccountabilityRecordSingleton extends ListenerAdapter {
 
-    private static AccountabilityRecord instance;
+    private static AccountabilityRecordSingleton instance;
     private Hashtable<String, String> accountabilityReport;
 
-    public static AccountabilityRecord getInstance() {
+    public static AccountabilityRecordSingleton getInstance() {
         if (instance == null) {
-            instance = new AccountabilityRecord();
+            instance = new AccountabilityRecordSingleton();
             instance.resetAccountabilityReport();
         }
         return instance;

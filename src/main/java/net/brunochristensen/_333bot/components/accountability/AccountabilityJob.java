@@ -7,8 +7,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
+import org.quartz.*;
 
 import java.awt.*;
 import java.util.List;
@@ -22,7 +21,7 @@ public class AccountabilityJob implements Job {
     private String location;
 
     @Override
-    public void execute(JobExecutionContext jobExecutionContext) {
+    public void execute(JobExecutionContext context) {
         MessageEmbed infoMenu = new EmbedBuilder()
                 .setTitle("Accountability")
                 .setColor(Color.yellow)
@@ -45,7 +44,7 @@ public class AccountabilityJob implements Job {
                 .addOption("Graduation", "Graduation")
                 .addOption("Out-processing", "Out-processing")
                 .build();
-        AccountabilityRecord.getInstance().resetAccountabilityReport();
+        AccountabilityRecordSingleton.getInstance().resetAccountabilityReport();
         TextChannel channel = Objects.requireNonNull(
                 api.getTextChannelById(Env.get("ACCOUNTABILITY_CHANNEL_ID")));
         List<Message> messages = channel.getHistory().retrievePast(10).complete();

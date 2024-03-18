@@ -115,22 +115,39 @@ public class AccountabilityCommand extends ListenerAdapter {
                             .queue();
                 }
             } catch (SchedulerException e) {
-                event.replyEmbeds(EmbedResponse.error("Failed to fetch Keys from scheduler. Contact a dev for assistance."))
+                event.replyEmbeds(EmbedResponse.error("Failed to fetch Keys from scheduler."))
                         .setEphemeral(true)
                         .queue();
                 throw new RuntimeException(e);
             }
         } else if (event.getComponentId().equals("accSkip")) {
-            event.replyEmbeds(EmbedResponse.error("Not Implemented"))
-                    .setEphemeral(true)
-                    .queue();
+            try {
+                handler.skipTrigger();
+                event.replyEmbeds(EmbedResponse.success("The next Trigger will skip it's fire time."))
+                        .setEphemeral(true)
+                        .queue();
+            } catch (SchedulerException e) {
+                event.replyEmbeds(EmbedResponse.error("Failed to fetch Keys from scheduler."))
+                        .setEphemeral(true)
+                        .queue();
+            }
         } else if (event.getComponentId().equals("accGet")) {
-            StringBuilder sb = new StringBuilder();
-            AccountabilityRecord.getInstance().getAccountabilityReport()
-                    .forEach((k, v) -> sb.append(String.format("%s, %s\n", k, v)));
-            event.replyEmbeds(EmbedResponse.success(sb.toString()))
-                    .setEphemeral(true)
-                    .queue();
+            Map<String, String> data = AccountabilityRecordSingleton.getInstance().getAccountabilityReport();
+            if (data.isEmpty()) {
+                event.replyEmbeds(EmbedResponse.success("Nobody has responded to this accountability."))
+                        .setEphemeral(true)
+                        .queue();
+            } else {
+                EmbedBuilder tmp = new EmbedBuilder().setColor(Color.GREEN)
+                        .setTitle("The following individuals has reported for accountability:")
+                        .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot");
+                for (Map.Entry<String, String> person : data.entrySet()) {
+                    tmp.addField(person.getKey(), person.getValue(), true);
+                }
+                event.replyEmbeds(tmp.build())
+                        .setEphemeral(true)
+                        .queue();
+            }
         }
     }
 
@@ -143,7 +160,7 @@ public class AccountabilityCommand extends ListenerAdapter {
                 String time = Objects.requireNonNull(event.getValue("time")).getAsString();
                 String location = Objects.requireNonNull(event.getValue("location")).getAsString();
             try {
-                if (handler.newTrigger(triggerName, cronSch, uniform, time, location)) {
+                if (handler.addTrigger(triggerName, cronSch, uniform, time, location)) {
                     event.replyEmbeds(EmbedResponse.success("New accountability Trigger scheduled."))
                             .setEphemeral(true)
                             .queue();
@@ -153,7 +170,7 @@ public class AccountabilityCommand extends ListenerAdapter {
                             .queue();
                 }
             } catch (SchedulerException e) {
-                event.replyEmbeds(EmbedResponse.error("Scheduler failed to add Trigger. Contact a dev for assistance."))
+                event.replyEmbeds(EmbedResponse.error("Scheduler failed to add Trigger."))
                         .setEphemeral(true)
                         .queue();
                 throw new RuntimeException(e);

@@ -38,7 +38,7 @@ public class AccountabilityHandler {
         return triggerData;
     }
 
-    public boolean newTrigger(String triggerName, String cronSch, String uniform, String time, String location)
+    public boolean addTrigger(String triggerName, String cronSch, String uniform, String time, String location)
             throws SchedulerException {
         if (!CronExpression.isValidExpression(cronSch)) {
             return false;
@@ -71,8 +71,13 @@ public class AccountabilityHandler {
         return true;
     }
 
-    public boolean skipTrigger() {
-        //TODO
-        return false;
+    public void skipTrigger() throws SchedulerException {
+        List<? extends Trigger> triggers = scheduler.getTriggersOfJob(accountabilityJob.getKey());
+        triggers.sort(Comparator.comparing(Trigger::getNextFireTime));
+        CronTrigger nextTrigger = (CronTrigger) triggers.get(0);
+        CronTrigger newTrigger = nextTrigger.getTriggerBuilder()
+                .startAt(nextTrigger.getFireTimeAfter(nextTrigger.getNextFireTime()))
+                .build();
+        scheduler.rescheduleJob(nextTrigger.getKey(), newTrigger);
     }
 }
