@@ -1,9 +1,8 @@
 package net.brunochristensen._333bot;
 
 import net.brunochristensen._333bot.components.accountability.AccountabilityCommand;
-import net.brunochristensen._333bot.components.accountability.AccountabilityRecordSingleton;
 import net.brunochristensen._333bot.events.MemberJoinListener;
-import net.brunochristensen._333bot.events.PingListener;
+import net.brunochristensen._333bot.events.PingCommand;
 import net.brunochristensen._333bot.utils.Env;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -27,10 +26,12 @@ public class Bot {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        api.addEventListener(new MemberJoinListener(), new PingListener(), AccountabilityRecordSingleton.getInstance());
+        api.addEventListener(new MemberJoinListener(), new PingCommand());
         Objects.requireNonNull(api.getGuildById(Env.get("GUILD_ID")))
                 .updateCommands()
-                .addCommands(Commands.slash("account", "Brings up the Accountability menu. ADMIN/MOD ONLY."))
+                .addCommands(Commands.slash("account", "Brings up the accountability config menu."),
+                        Commands.slash("help", "A lovely list of commands you may or may not be able to use."),
+                        Commands.slash("ping", "pong!"))
                 .queue();
     }
 }

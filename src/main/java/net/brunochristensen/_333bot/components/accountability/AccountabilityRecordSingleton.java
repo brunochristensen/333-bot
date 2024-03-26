@@ -1,10 +1,12 @@
 package net.brunochristensen._333bot.components.accountability;
 
 import java.util.Hashtable;
+import java.util.Objects;
 
 import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 public class AccountabilityRecordSingleton extends ListenerAdapter {
 
@@ -28,9 +30,9 @@ public class AccountabilityRecordSingleton extends ListenerAdapter {
     }
 
     @Override
-    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+    public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
         if (event.getComponentId().equals("choose-acc")) {
-            accountabilityReport.put(event.getUser().getName(), event.getValues().get(0));
+            accountabilityReport.put(Objects.requireNonNull(event.getMember()).getEffectiveName(), event.getValues().get(0));
             event.replyEmbeds(EmbedResponse.success("Submission has been processed."))
                     .setEphemeral(true)
                     .queue();
