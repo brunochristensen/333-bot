@@ -15,23 +15,24 @@ import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
 
 public class AccountabilityHandler implements JobHandler {
 
+    public static final String ACCOUNTABILITY_GROUP = "accountabilityGroup";
     private final Scheduler scheduler;
     private final JDA api;
 
     public AccountabilityHandler(JDA api) throws SchedulerException {
+        this.scheduler = new StdSchedulerFactory().getScheduler();
+        this.scheduler.start();
         this.api = api;
-        scheduler = new StdSchedulerFactory().getScheduler();
-        scheduler.start();
     }
 
     public boolean addJob(String jobName) throws SchedulerException {
-        for (JobKey jobKey : scheduler.getJobKeys(groupEquals("accountabilityGroup"))) {
+        for (JobKey jobKey : scheduler.getJobKeys(groupEquals(ACCOUNTABILITY_GROUP))) {
             if (jobName.equals(jobKey.getName())) {
                 return false;
             }
         }
         JobDetail accountabilityJob = JobBuilder.newJob(AccountabilityJob.class)
-                .withIdentity(jobName, "accountabilityGroup")
+                .withIdentity(jobName, ACCOUNTABILITY_GROUP)
                 .storeDurably()
                 .build();
         accountabilityJob.getJobDataMap().put("api", api);
@@ -43,18 +44,18 @@ public class AccountabilityHandler implements JobHandler {
         return false;
     }
 
-    public boolean addTrigger(String triggerName, String cronSch, String... args) throws SchedulerException {
+    public boolean addTrigger(String triggerName, String jobName, String cronSch, String... args) throws SchedulerException {
         if (!isValidExpression(cronSch) ||
-                scheduler.getTriggersOfJob(new JobKey("accountabilityJob", "accountabilityGroup"))
+                scheduler.getTriggersOfJob(new JobKey("accountabilityJob", ACCOUNTABILITY_GROUP))
                         .stream().anyMatch(k -> k.getKey().getName().equals(triggerName))) {
             return false;
         }
         Trigger accountabilityTrigger = newTrigger()
-                .withIdentity(triggerName, "accountabilityGroup")
+                .withIdentity(triggerName, ACCOUNTABILITY_GROUP)
                 .startNow()
                 .withSchedule(cronSchedule(cronSch))
                 .withDescription(triggerName)
-                .forJob(scheduler.getJobDetail(new JobKey("accountabilityJob", "accountabilityGroup")))
+                .forJob(scheduler.getJobDetail(new JobKey(jobName, ACCOUNTABILITY_GROUP)))
                 .build();
         accountabilityTrigger.getJobDataMap().putAll(
                 Map.of("uniform", args[0], "time", args[1], "location", args[2]));
@@ -64,18 +65,18 @@ public class AccountabilityHandler implements JobHandler {
 
     public boolean delTrigger(@NotNull String triggerName) throws SchedulerException {
         HashSet<String> rt = new HashSet<>();
-        scheduler.getTriggerKeys(groupEquals("accountabilityGroup"))
+        scheduler.getTriggerKeys(groupEquals(ACCOUNTABILITY_GROUP))
                 .forEach(key -> rt.add(key.getName()));
         if (!rt.contains(triggerName)) {
             return false;
         }
-        scheduler.unscheduleJob(new TriggerKey(triggerName, "accountabilityGroup"));
+        scheduler.unscheduleJob(new TriggerKey(triggerName, ACCOUNTABILITY_GROUP));
         return true;
     }
 
     public Map<String, Map<String, String>> getTriggerData() throws SchedulerException {
         Map<String, Map<String, String>> triggerData = new LinkedHashMap<>();
-        for (TriggerKey tk : scheduler.getTriggerKeys(groupEquals("accountabilityGroup"))) {
+        for (TriggerKey tk : scheduler.getTriggerKeys(groupEquals(ACCOUNTABILITY_GROUP))) {
             CronTrigger t = (CronTrigger) scheduler.getTrigger(tk);
             Map<String, String> m = new LinkedHashMap<>();
             m.put("Name", t.getDescription());
@@ -93,7 +94,7 @@ public class AccountabilityHandler implements JobHandler {
     }
 
     public boolean skipTrigger() throws SchedulerException {
-        List<? extends Trigger> triggers = scheduler.getTriggersOfJob(new JobKey("accountabilityJob", "accountabilityGroup"));
+        List<? extends Trigger> triggers = scheduler.getTriggersOfJob(new JobKey("accountabilityJob", ACCOUNTABILITY_GROUP));
         if (triggers.isEmpty()) {
             return false;
         }

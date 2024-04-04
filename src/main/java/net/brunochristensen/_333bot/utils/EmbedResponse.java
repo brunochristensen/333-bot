@@ -7,12 +7,19 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 
 public class EmbedResponse {
+    private static final String BOTNAME = "333-bot";
+    private static final String URL = "https://github.com/brunochristensen/333-bot";
+
+    private EmbedResponse() {
+        throw new IllegalStateException("Utility class");
+    }
+
     @NotNull
     public static MessageEmbed success(String content) {
         return new EmbedBuilder()
                 .setColor(Color.GREEN)
                 .setTitle(content)
-                .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot")
+                .setAuthor(BOTNAME, URL)
                 .build();
     }
 
@@ -21,7 +28,7 @@ public class EmbedResponse {
         return new EmbedBuilder()
                 .setColor(Color.YELLOW)
                 .setTitle(content)
-                .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot")
+                .setAuthor(BOTNAME, URL)
                 .build();
     }
 
@@ -30,7 +37,16 @@ public class EmbedResponse {
         return new EmbedBuilder()
                 .setColor(Color.RED)
                 .setTitle(content)
-                .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot")
+                .setAuthor(BOTNAME, URL)
+                .build();
+    }
+
+    public static MessageEmbed message(String title, String body) {
+        return new EmbedBuilder()
+                .setColor(Color.YELLOW)
+                .setTitle(title)
+                .setDescription(body)
+                .setAuthor(BOTNAME, URL)
                 .build();
     }
 }
