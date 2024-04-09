@@ -1,17 +1,18 @@
 package net.brunochristensen._333bot.components.accountability;
 
-import java.util.Hashtable;
-import java.util.Objects;
-
 import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 public class AccountabilityRecordSingleton extends ListenerAdapter {
 
     private static AccountabilityRecordSingleton instance;
-    private Hashtable<String, String> accountabilityReport;
+    private HashMap<String, String> accountabilityReport;
 
     public static AccountabilityRecordSingleton getInstance() {
         if (instance == null) {
@@ -21,19 +22,23 @@ public class AccountabilityRecordSingleton extends ListenerAdapter {
         return instance;
     }
 
-    public Hashtable<String, String> getAccountabilityReport() {
-        return accountabilityReport;
+    public void resetAccountabilityReport() {
+        accountabilityReport = new HashMap<>();
     }
 
-    public void resetAccountabilityReport() {
-        accountabilityReport = new Hashtable<>();
+    public Map<String, String> getAccountabilityReport() {
+        return accountabilityReport;
     }
 
     @Override
     public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
-        if (event.getComponentId().equals("choose-acc")) {
-            accountabilityReport.put(Objects.requireNonNull(event.getMember()).getEffectiveName(), event.getValues().get(0));
-            event.replyEmbeds(EmbedResponse.success("Submission has been processed."))
+        if (event.getComponentId()
+                .equals("choose-acc")) {
+            accountabilityReport.put(Objects.requireNonNull(event.getMember())
+                    .getEffectiveName(), event.getValues()
+                    .get(0));
+            event.replyEmbeds(EmbedResponse.success("Submission has been processed.")
+                            .build())
                     .setEphemeral(true)
                     .queue();
         }

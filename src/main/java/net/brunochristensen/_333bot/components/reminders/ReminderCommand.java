@@ -1,6 +1,5 @@
 package net.brunochristensen._333bot.components.reminders;
 
-import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.brunochristensen._333bot.utils.Env;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -10,7 +9,6 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
-import org.quartz.SchedulerException;
 
 import java.awt.*;
 import java.util.Objects;
@@ -23,27 +21,25 @@ public class ReminderCommand extends ListenerAdapter {
             .setDescription("Here you can view and configure when the bot will send out reminders.")
             .setAuthor("333-bot", "https://github.com/brunochristensen/333-bot")
             .build();
-    private ReminderHandler handler;
+    private ReminderBuilder handler;
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        try {
-            handler = new ReminderHandler(event.getJDA());
-        } catch (SchedulerException e) {
-            Objects.requireNonNull(event.getJDA().getTextChannelById(Env.get("DEBUG_CHANNEL_ID")))
-                    .sendMessageEmbeds(EmbedResponse.error("ReminderHandler failed to fetch scheduler."))
-                    .queue();
-            throw new RuntimeException(e);
-        }
+        handler = new ReminderBuilder(event.getJDA());
     }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (event.getName().equals("account")) {
+        if (event.getName()
+                .equals("remind")) {
             if (Objects.requireNonNull(event.getMember())
-                    .getRoles().contains(event.getJDA().getRoleById(Env.get("ADMIN_ROLE_ID"))) ||
+                    .getRoles()
+                    .contains(event.getJDA()
+                            .getRoleById(Env.get("ADMIN_ROLE_ID"))) ||
                     Objects.requireNonNull(event.getMember())
-                            .getRoles().contains(event.getJDA().getRoleById(Env.get("AL_ROLE_ID")))) {
+                            .getRoles()
+                            .contains(event.getJDA()
+                                    .getRoleById(Env.get("AL_ROLE_ID")))) {
                 event.replyEmbeds(controlMenuEmbed)
                         .addActionRow(Button.success("remAdd", "Add New Reminder"))
                         .addActionRow(Button.danger("remDel", "Delete Reminder"))
@@ -52,9 +48,12 @@ public class ReminderCommand extends ListenerAdapter {
                         .queue();
             } else {
                 event.replyEmbeds(controlMenuEmbed)
-                        .addActionRow(Button.success("remAdd", "Add New Reminder").asDisabled())
-                        .addActionRow(Button.danger("remDel", "Delete Reminder").asDisabled())
-                        .addActionRow(Button.secondary("remView", "View  Reminders").asDisabled())
+                        .addActionRow(Button.success("remAdd", "Add New Reminder")
+                                .asDisabled())
+                        .addActionRow(Button.danger("remDel", "Delete Reminder")
+                                .asDisabled())
+                        .addActionRow(Button.secondary("remView", "View  Reminders")
+                                .asDisabled())
                         .setEphemeral(true)
                         .queue();
             }
@@ -63,13 +62,16 @@ public class ReminderCommand extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        if (event.getComponentId().equals("remAdd")) {
+        if (event.getComponentId()
+                .equals("remAdd")) {
             handler.addJob();
             handler.addTrigger();
-        } else if (event.getComponentId().equals("remDel")) {
+        } else if (event.getComponentId()
+                .equals("remDel")) {
             handler.delTrigger();
             handler.delJob();
-        } else if (event.getComponentId().equals("remView")) {
+        } else if (event.getComponentId()
+                .equals("remView")) {
             handler.getTriggerData();
         }
     }

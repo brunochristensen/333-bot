@@ -1,13 +1,12 @@
 package net.brunochristensen._333bot.utils;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
 public class EmbedResponse {
-    private static final String BOTNAME = "333-bot";
+    private static final String BOT_NAME = "333-bot";
     private static final String URL = "https://github.com/brunochristensen/333-bot";
 
     private EmbedResponse() {
@@ -15,38 +14,34 @@ public class EmbedResponse {
     }
 
     @NotNull
-    public static MessageEmbed success(String content) {
+    public static EmbedBuilder success(String content) {
         return new EmbedBuilder()
                 .setColor(Color.GREEN)
                 .setTitle(content)
-                .setAuthor(BOTNAME, URL)
-                .build();
+                .setAuthor(BOT_NAME, URL);
     }
 
     @NotNull
-    public static MessageEmbed failure(String content) {
+    public static EmbedBuilder failure(String content) {
         return new EmbedBuilder()
                 .setColor(Color.YELLOW)
                 .setTitle(content)
-                .setAuthor(BOTNAME, URL)
-                .build();
+                .setAuthor(BOT_NAME, URL);
     }
 
     @NotNull
-    public static MessageEmbed error(String content) {
+    public static EmbedBuilder error(String content) {
         return new EmbedBuilder()
                 .setColor(Color.RED)
                 .setTitle(content)
-                .setAuthor(BOTNAME, URL)
-                .build();
+                .setAuthor(BOT_NAME, URL);
     }
 
-    public static MessageEmbed message(String title, String body) {
+    public static EmbedBuilder message(String title, String body) {
         return new EmbedBuilder()
                 .setColor(Color.YELLOW)
                 .setTitle(title)
                 .setDescription(body)
-                .setAuthor(BOTNAME, URL)
-                .build();
+                .setAuthor(BOT_NAME, URL);
     }
 }

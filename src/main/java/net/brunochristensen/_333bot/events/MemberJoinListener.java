@@ -16,20 +16,23 @@ public class MemberJoinListener extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
-        String name = event.getMember().getEffectiveName();
-        try {
-            RandomAccessFile fileReader = new RandomAccessFile(new File("src/main/resources/Welcome.txt"), "r");
+        String name = event.getMember()
+                .getEffectiveName();
+        try (RandomAccessFile fileReader = new RandomAccessFile(new File("src/main/resources/Welcome.txt"), "r")) {
             fileReader.seek((long) (Math.random() * fileReader.length()));
             fileReader.readLine();
-            Objects.requireNonNull(event.getJDA().getTextChannelById(Env.get("WELCOME_CHANNEL_ID")))
-                    .sendMessageEmbeds(EmbedResponse.success(String.format(fileReader.readLine(), name)))
+            Objects.requireNonNull(event.getJDA()
+                            .getTextChannelById(Env.get("WELCOME_CHANNEL_ID")))
+                    .sendMessageEmbeds(EmbedResponse.success(String.format(fileReader.readLine(), name))
+                            .build())
                     .addFiles(FileUpload.fromData(new File("src/main/resources/pictures/Duc.png")))
                     .queue();
-            fileReader.close();
         } catch (IOException e) {
-            Objects.requireNonNull(event.getJDA().getTextChannelById(Env.get("WELCOME_CHANNEL_ID")))
+            Objects.requireNonNull(event.getJDA()
+                            .getTextChannelById(Env.get("WELCOME_CHANNEL_ID")))
                     .sendMessageEmbeds(EmbedResponse.success(String.format("Someone's dog shit programming broke, " +
-                            "now you have to deal with this welcome message %s. Enjoy.", name)))
+                                    "now you have to deal with this welcome message %s. Enjoy.", name))
+                            .build())
                     .queue();
         }
     }
