@@ -64,12 +64,10 @@ public class ReminderCommand extends ListenerAdapter {
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (event.getComponentId()
                 .equals("remAdd")) {
-            handler.addJob();
             handler.addTrigger();
         } else if (event.getComponentId()
                 .equals("remDel")) {
             handler.delTrigger();
-            handler.delJob();
         } else if (event.getComponentId()
                 .equals("remView")) {
             handler.getTriggerData();

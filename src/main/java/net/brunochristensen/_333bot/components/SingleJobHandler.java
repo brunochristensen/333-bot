@@ -6,7 +6,10 @@ import org.jetbrains.annotations.NotNull;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.quartz.CronExpression.isValidExpression;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
@@ -15,36 +18,37 @@ import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
 
 public class SingleJobHandler {
-    protected final String groupName;
-    protected final String jobName;
-    protected final Scheduler scheduler;
+    private final String groupName;
+    private final String jobName;
+    private final Scheduler scheduler;
 
-    protected SingleJobHandler(JDA api, Class<? extends org.quartz.Job> jobClass, String groupName, String jobName) throws SchedulerException {
+    public SingleJobHandler(JDA api, Class<? extends org.quartz.Job> jobClass, String groupName, String jobName) throws SchedulerException {
         this.groupName = groupName;
         this.jobName = jobName;
         this.scheduler = new StdSchedulerFactory().getScheduler();
         this.scheduler.start();
-        JobDetail accountabilityJob = newJob(jobClass)
-                .withIdentity(jobName, groupName)
+        JobDetail accountabilityJob = newJob(jobClass).withIdentity(jobName, groupName)
                 .storeDurably()
                 .build();
         accountabilityJob.getJobDataMap()
                 .put("api", api);
         scheduler.addJob(accountabilityJob, false);
     }
+
     public SingleJobTriggerBuilder buildTrigger(String triggerName, String cronSch) throws SchedulerException {
-        return new SingleJobTriggerBuilder(triggerName, cronSch);
+        if (isValidExpression(cronSch) && !scheduler.checkExists(new TriggerKey(triggerName, groupName))) {
+            return new SingleJobTriggerBuilder(triggerName, cronSch);
+        }
+        throw new SchedulerException("Duplicate Trigger name or invalid Cron Schedule");
     }
 
     public boolean delTrigger(@NotNull String triggerName) throws SchedulerException {
-        HashSet<String> rt = new HashSet<>();
-        scheduler.getTriggerKeys(groupEquals(groupName))
-                .forEach(key -> rt.add(key.getName()));
-        if (!rt.contains(triggerName)) {
-            return false;
+        TriggerKey triggerKey = new TriggerKey(triggerName, groupName);
+        if (scheduler.checkExists(triggerKey)) {
+            scheduler.unscheduleJob(triggerKey);
+            return true;
         }
-        scheduler.unscheduleJob(new TriggerKey(triggerName, groupName));
-        return true;
+        return false;
     }
 
     public Map<String, Map<String, String>> getTriggerData() throws SchedulerException {
@@ -88,21 +92,11 @@ public class SingleJobHandler {
         private final Trigger trigger;
 
         private SingleJobTriggerBuilder(String triggerName, String cronSch) throws SchedulerException {
-            if (isValidExpression(cronSch) &&
-                    scheduler.getTriggersOfJob(new JobKey(jobName, groupName))
-                            .stream()
-                            .noneMatch(k -> k.getKey()
-                                    .getName()
-                                    .equals(triggerName))) {
-                trigger = newTrigger()
-                        .withIdentity(triggerName)
-                        .withSchedule(cronSchedule(cronSch))
-                        .forJob(scheduler.getJobDetail(new JobKey(jobName, groupName)))
-                        .startNow()
-                        .build();
-            } else {
-                throw new SchedulerException("Duplicate Trigger name or invalid Cron Schedule");
-            }
+            trigger = newTrigger().withIdentity(triggerName, groupName)
+                    .withSchedule(cronSchedule(cronSch))
+                    .forJob(scheduler.getJobDetail(new JobKey(jobName, groupName)))
+                    .startNow()
+                    .build();
         }
 
         public boolean schedule() throws SchedulerException {
