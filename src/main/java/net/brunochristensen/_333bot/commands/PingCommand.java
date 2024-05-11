@@ -1,4 +1,4 @@
-package net.brunochristensen._333bot.events;
+package net.brunochristensen._333bot.commands;
 
 import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

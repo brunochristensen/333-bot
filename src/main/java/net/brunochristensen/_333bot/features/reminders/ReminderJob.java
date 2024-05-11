@@ -1,4 +1,4 @@
-package net.brunochristensen._333bot.components.reminders;
+package net.brunochristensen._333bot.features.reminders;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;

@@ -1,4 +1,4 @@
-package net.brunochristensen._333bot.events;
+package net.brunochristensen._333bot.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;

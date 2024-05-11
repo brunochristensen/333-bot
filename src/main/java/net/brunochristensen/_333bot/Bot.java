@@ -1,10 +1,9 @@
 package net.brunochristensen._333bot;
 
-import net.brunochristensen._333bot.components.accountability.AccountabilityCommand;
-import net.brunochristensen._333bot.components.reminders.ReminderCommand;
-import net.brunochristensen._333bot.events.HelpCommand;
+import net.brunochristensen._333bot.commands.HelpCommand;
+import net.brunochristensen._333bot.commands.PingCommand;
 import net.brunochristensen._333bot.events.MemberJoinListener;
-import net.brunochristensen._333bot.events.PingCommand;
+import net.brunochristensen._333bot.features.accountability.AccountabilitySlashCommand;
 import net.brunochristensen._333bot.utils.Env;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,15 +23,11 @@ public class Bot {
         JDA api = JDABuilder.createDefault(Env.get("DISCORD_TOKEN"), GatewayIntent.GUILD_MESSAGES,
                         GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.SCHEDULED_EVENTS)
-                .addEventListeners(new AccountabilityCommand(),
-                        new ReminderCommand())
+                .addEventListeners(new AccountabilitySlashCommand())
                 .setActivity(Activity.listening("the world burn."))
                 .build();
-        logger.info("JDA object created, awaiting ready...");
         api.awaitReady();
-        logger.info("JDA object ready.");
         api.addEventListener(new MemberJoinListener(), new PingCommand(), new HelpCommand());
-        logger.info("JDA object queueing Commands");
         Objects.requireNonNull(api.getGuildById(Env.get("GUILD_ID")))
                 .updateCommands()
                 .addCommands(Commands.slash("account", "Brings up the accountability config menu."),

@@ -1,6 +1,6 @@
-package net.brunochristensen._333bot.components;
+package net.brunochristensen._333bot.features;
 
-import net.brunochristensen._333bot.components.accountability.AccountabilityRecordSingleton;
+import net.brunochristensen._333bot.features.accountability.AccountabilityRecordSingleton;
 import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.*;

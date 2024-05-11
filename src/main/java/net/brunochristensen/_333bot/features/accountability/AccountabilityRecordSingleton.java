@@ -1,4 +1,4 @@
-package net.brunochristensen._333bot.components.accountability;
+package net.brunochristensen._333bot.features.accountability;
 
 import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
