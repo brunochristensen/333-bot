@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 
 public class HelpCommand extends ListenerAdapter {
+
     private final MessageEmbed helpEmbed = new EmbedBuilder()
             .setTitle("You clearly need some help.")
             .setColor(Color.GREEN)

@@ -24,52 +24,35 @@ public class AccountabilityModalListener extends ModalListener {
 
     @Override
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
-        if (event.getModalId()
-                .equals("newAccModal")) {
+        if (event.getModalId().equals("newAccModal")) {
             String triggerName = Objects.requireNonNull(event.getValue("triggerNameAddTextInput"))
                     .getAsString();
-            String cronSch = Objects.requireNonNull(event.getValue("cronSchTextInput"))
-                    .getAsString();
-            String uniform = Objects.requireNonNull(event.getValue("uniformTextInput"))
-                    .getAsString();
-            String time = Objects.requireNonNull(event.getValue("timeTextInput"))
-                    .getAsString();
-            String location = Objects.requireNonNull(event.getValue("locationTextInput"))
-                    .getAsString();
+            String cronSch = Objects.requireNonNull(event.getValue("cronSchTextInput")).getAsString();
+            String uniform = Objects.requireNonNull(event.getValue("uniformTextInput")).getAsString();
+            String time = Objects.requireNonNull(event.getValue("timeTextInput")).getAsString();
+            String location = Objects.requireNonNull(event.getValue("locationTextInput")).getAsString();
             try {
-                if (handler.buildTrigger(triggerName, cronSch)
-                        .addToDataMap("uniform", uniform)
-                        .addToDataMap("time", time)
-                        .addToDataMap("location", location)
-                        .schedule()) {
-                    event.replyEmbeds(EmbedResponse.success("New accountability Trigger scheduled.")
-                                    .build())
-                            .setEphemeral(true)
-                            .queue();
+                if (handler.buildTrigger(triggerName, cronSch).addToDataMap("uniform", uniform)
+                        .addToDataMap("time", time).addToDataMap("location", location).schedule()) {
+                    event.replyEmbeds(EmbedResponse.success("New accountability Trigger scheduled.").build())
+                            .setEphemeral(true).queue();
                 } else {
-                    event.replyEmbeds(EmbedResponse.failure("Invalid Cron expression.")
-                                    .build())
-                            .setEphemeral(true)
-                            .queue();
+                    event.replyEmbeds(EmbedResponse.failure("Invalid Cron expression.").build())
+                            .setEphemeral(true).queue();
                 }
             } catch (SchedulerException e) {
                 logger.error(e.toString());
             }
-        } else if (event.getModalId()
-                .equals("delAccModal")) {
+        } else if (event.getModalId().equals("delAccModal")) {
             String triggerName = Objects.requireNonNull(event.getValue("triggerNameDelTextInput"))
                     .getAsString();
             try {
                 if (handler.delTrigger(triggerName)) {
-                    event.replyEmbeds(EmbedResponse.success("Accountability Trigger deleted.")
-                                    .build())
-                            .setEphemeral(true)
-                            .queue();
+                    event.replyEmbeds(EmbedResponse.success("Accountability Trigger deleted.").build())
+                            .setEphemeral(true).queue();
                 } else {
-                    event.replyEmbeds(EmbedResponse.failure("Invalid Trigger name.")
-                                    .build())
-                            .setEphemeral(true)
-                            .queue();
+                    event.replyEmbeds(EmbedResponse.failure("Invalid Trigger name.").build())
+                            .setEphemeral(true).queue();
                 }
             } catch (SchedulerException e) {
                 logger.error(e.toString());

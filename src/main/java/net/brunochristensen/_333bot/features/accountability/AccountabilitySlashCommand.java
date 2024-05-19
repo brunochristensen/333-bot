@@ -22,9 +22,11 @@ import java.util.Objects;
 public class AccountabilitySlashCommand extends SlashCommandListener {
 
     private final Logger logger;
-
-    private final MessageEmbed controlMenuEmbed = EmbedResponse.message("Accountability Job Master Menu", "Here you can view and configure when the bot will send out requests for accountability, " + "Triggers can be created, deleted, and running Trigger information can be viewed. " + "The Skip button can be used to skip the next Trigger that will be fired.")
-            .build();
+    private final MessageEmbed controlMenuEmbed = EmbedResponse.message(
+            "Accountability Job Master Menu",
+            "Here you can view and configure when the bot will send out requests for accountability, Triggers"
+                    + " can be created, deleted, and running Trigger information can be viewed. The Skip button"
+                    + " can be used to skip the next Trigger that will be fired.").build();
 
     public AccountabilitySlashCommand() {
         logger = LoggerFactory.getLogger(AccountabilitySlashCommand.class);
@@ -33,9 +35,10 @@ public class AccountabilitySlashCommand extends SlashCommandListener {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         try {
-            SingleJobHandler handler = new SingleJobHandler(event.getJDA(), AccountabilityJob.class, "accountabilityGroup", "accountabilityJob");
-            event.getJDA()
-                    .addEventListener(AccountabilityRecordSingleton.getInstance(), new AccountabilityMenuListener(handler), new AccountabilityModalListener(handler));
+            SingleJobHandler handler = new SingleJobHandler(event.getJDA(), AccountabilityJob.class,
+                    "accountabilityGroup", "accountabilityJob");
+            event.getJDA().addEventListener(AccountabilityRecordSingleton.getInstance(),
+                    new AccountabilityMenuListener(handler), new AccountabilityModalListener(handler));
         } catch (SchedulerException e) {
             logger.error(e.toString());
         }
@@ -44,38 +47,27 @@ public class AccountabilitySlashCommand extends SlashCommandListener {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (event.getName()
-                .equals("account")) {
-            Button addButton = Button.success("accAdd", "Add New Accountability Times");
-            Button delButton = Button.danger("accDel", "Delete Accountability Times");
-            Button viewButton = Button.secondary("accView", "View Accountability Times");
-            Button skipButton = Button.primary("accSkip", "Skip Next Accountability Time");
-            Button getButton = Button.primary("accGet", "Get Accountability Responses");
-            List<Role> userRoles = Objects.requireNonNull(event.getMember())
-                    .getRoles();
+        if (event.getName().equals("account")) {
+            Button addButton = Button.success(AccountabilityComponentID.ADDBUTTON.id, "Add New Accountability Times");
+            Button delButton = Button.danger(AccountabilityComponentID.DELBUTTON.id, "Delete Accountability Times");
+            Button viewButton = Button.secondary(AccountabilityComponentID.VIEWBUTTON.id, "View Accountability Times");
+            Button skipButton = Button.primary(AccountabilityComponentID.SKIPBUTTON.id, "Skip Next Accountability Time");
+            Button getButton = Button.primary(AccountabilityComponentID.GETBUTTON.id, "Get Accountability Responses");
+            List<Role> userRoles = Objects.requireNonNull(event.getMember()).getRoles();
             JDA jda = event.getJDA();
             ReplyCallbackAction embed = event.replyEmbeds(controlMenuEmbed);
             if (userRoles.contains(jda.getRoleById(Env.get("ADMIN_ROLE_ID")))) {
-                embed.addActionRow(addButton)
-                        .addActionRow(delButton)
-                        .addActionRow(viewButton)
-                        .addActionRow(skipButton)
-                        .addActionRow(getButton);
+                embed.addActionRow(addButton).addActionRow(delButton).addActionRow(viewButton)
+                        .addActionRow(skipButton).addActionRow(getButton);
             } else if (userRoles.contains(jda.getRoleById(Env.get("AL_ROLE_ID")))) {
-                embed.addActionRow(addButton.asDisabled())
-                        .addActionRow(delButton.asDisabled())
-                        .addActionRow(viewButton)
-                        .addActionRow(skipButton.asDisabled())
-                        .addActionRow(getButton);
+                embed.addActionRow(addButton.asDisabled()).addActionRow(delButton.asDisabled())
+                        .addActionRow(viewButton).addActionRow(skipButton.asDisabled()).addActionRow(getButton);
             } else {
-                embed.addActionRow(addButton.asDisabled())
-                        .addActionRow(delButton.asDisabled())
-                        .addActionRow(viewButton.asDisabled())
-                        .addActionRow(skipButton.asDisabled())
+                embed.addActionRow(addButton.asDisabled()).addActionRow(delButton.asDisabled())
+                        .addActionRow(viewButton.asDisabled()).addActionRow(skipButton.asDisabled())
                         .addActionRow(getButton.asDisabled());
             }
-            embed.setEphemeral(true)
-                    .queue();
+            embed.setEphemeral(true).queue();
         }
     }
 }

@@ -16,17 +16,23 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 public class Bot {
-    private static final Logger logger = LoggerFactory.getLogger(Bot.class);
 
-    public static void main(String[] args) throws InterruptedException {
-        logger.info("Creating JDA object...");
+    public static void main(String[] args) {
+        Logger logger = LoggerFactory.getLogger(Bot.class);
         JDA api = JDABuilder.createDefault(Env.get("DISCORD_TOKEN"), GatewayIntent.GUILD_MESSAGES,
-                        GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES,
+                        GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS,
+                        GatewayIntent.GUILD_VOICE_STATES,
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.SCHEDULED_EVENTS)
                 .addEventListeners(new AccountabilitySlashCommand())
                 .setActivity(Activity.listening("the world burn."))
                 .build();
-        api.awaitReady();
+        try {
+            api.awaitReady();
+        } catch (InterruptedException e) {
+            logger.error(e.toString());
+            Thread.currentThread()
+                    .interrupt();
+        }
         api.addEventListener(new MemberJoinListener(), new PingCommand(), new HelpCommand());
         Objects.requireNonNull(api.getGuildById(Env.get("GUILD_ID")))
                 .updateCommands()

@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 
 public class EmbedResponse {
+
     private static final String BOT_NAME = "333-bot";
     private static final String URL = "https://github.com/brunochristensen/333-bot";
 

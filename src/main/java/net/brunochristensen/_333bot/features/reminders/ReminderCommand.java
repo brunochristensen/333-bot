@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ReminderCommand extends ListenerAdapter {
+
     private static final Logger logger = LoggerFactory.getLogger(ReminderCommand.class);
     private final MessageEmbed controlMenuEmbed = EmbedResponse.message("Todo", "todo")
             .build();
@@ -29,7 +30,8 @@ public class ReminderCommand extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         try {
-            handler = new SingleJobHandler(event.getJDA(), ReminderJob.class, "reminderGroup", "reminderJob");
+            handler = new SingleJobHandler(event.getJDA(), ReminderJob.class, "reminderGroup",
+                    "reminderJob");
         } catch (SchedulerException e) {
             logger.error(e.toString());
         }
@@ -46,7 +48,8 @@ public class ReminderCommand extends ListenerAdapter {
                     .getRoles();
             JDA jda = event.getJDA();
             ReplyCallbackAction embed = event.replyEmbeds(controlMenuEmbed);
-            if (userRoles.contains(jda.getRoleById(Env.get("ADMIN_ROLE_ID"))) || userRoles.contains(jda.getRoleById(Env.get("AL_ROLE_ID")))) {
+            if (userRoles.contains(jda.getRoleById(Env.get("ADMIN_ROLE_ID"))) || userRoles.contains(
+                    jda.getRoleById(Env.get("AL_ROLE_ID")))) {
                 embed.addActionRow(addButton)
                         .addActionRow(delButton)
                         .addActionRow(viewButton);

@@ -18,11 +18,13 @@ import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
 
 public class SingleJobHandler {
+
     private final String groupName;
     private final String jobName;
     private final Scheduler scheduler;
 
-    public SingleJobHandler(JDA api, Class<? extends org.quartz.Job> jobClass, String groupName, String jobName) throws SchedulerException {
+    public SingleJobHandler(JDA api, Class<? extends org.quartz.Job> jobClass, String groupName,
+                            String jobName) throws SchedulerException {
         this.groupName = groupName;
         this.jobName = jobName;
         this.scheduler = new StdSchedulerFactory().getScheduler();
@@ -35,8 +37,10 @@ public class SingleJobHandler {
         scheduler.addJob(accountabilityJob, false);
     }
 
-    public SingleJobTriggerBuilder buildTrigger(String triggerName, String cronSch) throws SchedulerException {
-        if (isValidExpression(cronSch) && !scheduler.checkExists(new TriggerKey(triggerName, groupName))) {
+    public SingleJobTriggerBuilder buildTrigger(String triggerName, String cronSch)
+            throws SchedulerException {
+        if (isValidExpression(cronSch) && !scheduler.checkExists(
+                new TriggerKey(triggerName, groupName))) {
             return new SingleJobTriggerBuilder(triggerName, cronSch);
         }
         throw new SchedulerException("Duplicate Trigger name or invalid Cron Schedule");
@@ -89,6 +93,7 @@ public class SingleJobHandler {
     }
 
     public class SingleJobTriggerBuilder {
+
         private final Trigger trigger;
 
         private SingleJobTriggerBuilder(String triggerName, String cronSch) throws SchedulerException {

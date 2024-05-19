@@ -3,6 +3,7 @@ package net.brunochristensen._333bot.utils;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class Env {
+
     private static final Dotenv dotenv = Dotenv.configure()
             .directory("./src/main/resources/env")
             .filename("tokens.env")

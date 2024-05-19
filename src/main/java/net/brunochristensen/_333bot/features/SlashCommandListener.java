@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class SlashCommandListener extends ListenerAdapter {
+
     @Override
     public abstract void onReady(@NotNull ReadyEvent event);
 

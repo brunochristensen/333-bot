@@ -14,13 +14,15 @@ import java.util.Objects;
 import java.util.Random;
 
 public class MemberJoinListener extends ListenerAdapter {
+
     private final Random random = new Random();
 
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
         String name = event.getMember()
                 .getEffectiveName();
-        try (RandomAccessFile fileReader = new RandomAccessFile(new File("src/main/resources/Welcome.txt"), "r")) {
+        try (RandomAccessFile fileReader = new RandomAccessFile(
+                new File("src/main/resources/Welcome.txt"), "r")) {
             fileReader.seek(random.nextLong(fileReader.length()));
             fileReader.readLine();
             String message = fileReader.readLine();
@@ -33,9 +35,10 @@ public class MemberJoinListener extends ListenerAdapter {
         } catch (IOException e) {
             Objects.requireNonNull(event.getJDA()
                             .getTextChannelById(Env.get("WELCOME_CHANNEL_ID")))
-                    .sendMessageEmbeds(EmbedResponse.success(String.format("Someone's garbage programming broke, " +
-                                    "now you have to deal with this welcome message %s. Enjoy.", name))
-                            .build())
+                    .sendMessageEmbeds(
+                            EmbedResponse.success(String.format("Someone's garbage programming broke, " +
+                                            "now you have to deal with this welcome message %s. Enjoy.", name))
+                                    .build())
                     .queue();
         }
     }
