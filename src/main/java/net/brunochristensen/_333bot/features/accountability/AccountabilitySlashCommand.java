@@ -1,25 +1,22 @@
 package net.brunochristensen._333bot.features.accountability;
 
-import net.brunochristensen._333bot.features.SingleJobHandler;
-import net.brunochristensen._333bot.features.SlashCommandListener;
 import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.brunochristensen._333bot.utils.Env;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jetbrains.annotations.NotNull;
-import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
-public class AccountabilitySlashCommand extends SlashCommandListener {
+public class AccountabilitySlashCommand extends ListenerAdapter {
 
     private final Logger logger;
     private final MessageEmbed controlMenuEmbed = EmbedResponse.message(
@@ -30,19 +27,6 @@ public class AccountabilitySlashCommand extends SlashCommandListener {
 
     public AccountabilitySlashCommand() {
         logger = LoggerFactory.getLogger(AccountabilitySlashCommand.class);
-    }
-
-    @Override
-    public void onReady(@NotNull ReadyEvent event) {
-        try {
-            SingleJobHandler handler = new SingleJobHandler(event.getJDA(), AccountabilityJob.class,
-                    "accountabilityGroup", "accountabilityJob");
-            event.getJDA().addEventListener(AccountabilityRecordSingleton.getInstance(),
-                    new AccountabilityMenuListener(handler), new AccountabilityModalListener(handler));
-        } catch (SchedulerException e) {
-            logger.error(e.toString());
-        }
-
     }
 
     @Override

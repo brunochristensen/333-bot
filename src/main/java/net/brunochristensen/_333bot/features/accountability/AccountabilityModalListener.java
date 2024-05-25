@@ -1,9 +1,9 @@
 package net.brunochristensen._333bot.features.accountability;
 
-import net.brunochristensen._333bot.features.ModalListener;
 import net.brunochristensen._333bot.features.SingleJobHandler;
 import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -11,13 +11,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-public class AccountabilityModalListener extends ModalListener {
+public class AccountabilityModalListener extends ListenerAdapter {
 
     private final SingleJobHandler handler;
     private final Logger logger;
 
     public AccountabilityModalListener(SingleJobHandler handler) {
-        super();
         this.handler = handler;
         logger = LoggerFactory.getLogger(AccountabilityModalListener.class);
     }

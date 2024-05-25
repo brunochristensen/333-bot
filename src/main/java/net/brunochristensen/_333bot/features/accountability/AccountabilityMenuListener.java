@@ -1,11 +1,11 @@
 package net.brunochristensen._333bot.features.accountability;
 
-import net.brunochristensen._333bot.features.MenuListener;
 import net.brunochristensen._333bot.features.SingleJobHandler;
 import net.brunochristensen._333bot.utils.EmbedResponse;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class AccountabilityMenuListener extends MenuListener {
+public class AccountabilityMenuListener extends ListenerAdapter {
 
     private final Modal additionModal = Modal.create("newAccModal", "New Accountability Schedule")
             .addComponents(ActionRow.of(
@@ -45,12 +45,12 @@ public class AccountabilityMenuListener extends MenuListener {
 
     public AccountabilityMenuListener(SingleJobHandler handler) {
         this.handler = handler;
-        logger = LoggerFactory.getLogger(AccountabilityMenuListener.class);
+        this.logger = LoggerFactory.getLogger(AccountabilityMenuListener.class);
     }
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        switch (AccountabilityComponentID.valueOf(event.getComponentId())) {
+        switch (AccountabilityComponentID.valueOfLabel(event.getComponentId())) {
             case ADDBUTTON:
                 event.replyModal(additionModal).queue();
                 break;

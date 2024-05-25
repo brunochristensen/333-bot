@@ -29,10 +29,9 @@ public class AccountabilityJob implements Job {
     public void execute(JobExecutionContext context) {
         MessageEmbed infoMenu = EmbedResponse.message("Accountability",
                         "Report where you will be during " +
-                                "accountability. THIS IS NOT AN OFFICIAL FORM OF COMMUNICATION. You still need to ask for "
-                                +
-                                "MTL permission. Not sure why this feature is still here to be honest. If you are in " +
-                                "processing this doesn't apply to you yet.")
+                                "accountability. THIS IS NOT AN OFFICIAL FORM OF COMMUNICATION. You still need to ask" +
+                                " for MTL permission. Not sure why this feature is still here to be honest. If you " +
+                                "are in processing this doesn't apply to you yet.")
                 .addField("Uniform", uniform, false)
                 .addField("Time", time, false)
                 .addField("Location", location, false)
@@ -55,10 +54,8 @@ public class AccountabilityJob implements Job {
         List<Message> messages = channel.getHistoryFromBeginning(Integer.MAX_VALUE)
                 .complete()
                 .getRetrievedHistory();
-        logger.info("Retrieved {} messages for deletion", messages.size());
         messages.forEach(message -> message.delete()
                 .complete());
-        logger.info("Messages deleted");
         channel.sendMessageEmbeds(infoMenu)
                 .addActionRow(selectMenu)
                 .queue();
